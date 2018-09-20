@@ -1,0 +1,8 @@
+Prerequisites:
+dot (already installed?)
+g++ (already installed?)
+
+To run:
+g++ dfa.cpp -o %binary_file%
+%binary_file% %output_path%.gv
+dot -Tpng %output_path.gv% %pic_name%.png
