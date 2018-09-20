@@ -1,2 +1,2 @@
 # FL_HSE
-FL_HSE hws
+Formal Languges' homeworks
