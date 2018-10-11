@@ -18,3 +18,4 @@ main = do
   runParser " var = -1-2-3"
   runParser " (2^(2+3))^4"
   runParser " 1 * 2 - 3 / 4 + 5"
+  runParser " maxval = 13 + 12 + val "

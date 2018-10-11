@@ -1,6 +1,6 @@
 module Tokenizer where
 
-data Token = TNum Integer
+data Token = TNum [Char]
            | TIdent [Char]
            | TOp Operator
            | TLParen
@@ -27,7 +27,7 @@ tokenize (c : cs) | isOperator c   = TOp (operator c) : tokenize cs
                   | isWhiteSpace c = tokenize cs
                   | otherwise = error ("Lexical error: unacceptable character " ++ [c])
                   where (cId, csId) = getId (c : cs)
-                        (cNum, csNum) = getNum ((c : cs), 0)
+                        (cNum, csNum) = getNum (c : cs)
 
 isOperator :: Char -> Bool
 isOperator x = x `elem` "+-*/^"
@@ -43,25 +43,16 @@ operator c = error ("Lexical error: " ++ c : " is not an operator!")
 isDigit :: Char -> Bool
 isDigit x = x `elem` "0123456789"
 
-digit :: Char -> Integer
-digit c | c == '0' = 0
-        | c == '1' = 1
-        | c == '2' = 2
-        | c == '3' = 3
-        | c == '4' = 4
-        | c == '5' = 5
-        | c == '6' = 6
-        | c == '7' = 7
-        | c == '8' = 8
-        | c == '9' = 9
+digit :: Char -> Char
+digit c = c
 digit c = error ("Lexical error: " ++ c : " is not a digit!")
 
 
-getNum :: ([Char], Integer) -> (Integer, [Char])
-getNum ([], acc) = (acc, [])
-getNum ((c : cs), acc) | isDigit c = (acc * 10 + (digit c), y)
-                  where (x, y) = getNum (cs, acc)
-getNum (c, _) = (0, c)
+getNum :: [Char] -> ([Char], [Char])
+getNum ([]) = ([], [])
+getNum ((c : cs)) | isDigit c = (c : x, y)
+                  where (x, y) = getNum cs
+getNum c = ([], c)
 
 isAlpha :: Char -> Bool
 isAlpha c = c `elem` ['a' .. 'z'] ++ ['_'] ++ ['1' .. '9']
