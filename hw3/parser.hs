@@ -7,7 +7,7 @@ data AST = AUnOp Operator AST
          | ASum Operator AST AST
          | AProd Operator AST AST
          | AAssign [Char] AST
-         | ANum [Char]
+         | ANum Integer
          | AIdent [Char]
 
 parse :: String -> Maybe AST
@@ -75,7 +75,7 @@ instance Show AST where
                   ASum  op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AProd op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AAssign  v e -> v ++ " =\n" ++ show' (ident n) e
-                  ANum   i     -> i
+                  ANum   i     -> show i
                   AIdent i     -> i)
       ident = (+1)
       showOp Plus  = '+'

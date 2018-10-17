@@ -1,6 +1,6 @@
 module Tokenizer where
 
-data Token = TNum [Char]
+data Token = TNum Integer
            | TIdent [Char]
            | TOp Operator
            | TLParen
@@ -19,7 +19,7 @@ data Operator = Plus
 tokenize :: String -> [Token]
 tokenize [] = [TEof]
 tokenize (c : cs) | isOperator c   = TOp (operator c) : tokenize cs
-                  | isDigit c      = TNum (cNum) : tokenize csNum
+                  | isDigit c      = TNum (num $ reverse cNum) : tokenize csNum
                   | isAlpha c      = TIdent (alpha cId) : tokenize csId
                   | c == '('       = TLParen : tokenize cs
                   | c == ')'       = TRParen : tokenize cs
@@ -43,8 +43,17 @@ operator c = error ("Lexical error: " ++ c : " is not an operator!")
 isDigit :: Char -> Bool
 isDigit x = x `elem` "0123456789"
 
-digit :: Char -> Char
-digit c = c
+digit :: Char -> Integer
+digit c | c == '0' = 0
+        | c == '1' = 1
+        | c == '2' = 2
+        | c == '3' = 3
+        | c == '4' = 4
+        | c == '5' = 5
+        | c == '6' = 6
+        | c == '7' = 7
+        | c == '8' = 8
+        | c == '9' = 9
 digit c = error ("Lexical error: " ++ c : " is not a digit!")
 
 
@@ -53,6 +62,10 @@ getNum ([]) = ([], [])
 getNum ((c : cs)) | isDigit c = (c : x, y)
                   where (x, y) = getNum cs
 getNum c = ([], c)
+
+num :: [Char] -> Integer
+num [] = 0
+num (c : cs) = digit c + (num cs) * 10
 
 isAlpha :: Char -> Bool
 isAlpha c = c `elem` ['a' .. 'z'] ++ ['_'] ++ ['1' .. '9']
