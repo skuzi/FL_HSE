@@ -92,17 +92,17 @@ elems =
 
 list :: Parser AST
 list =
-  ( lbrac |>
+  ( baselist >>= \ll ->
+        conc     |>
+        listexpr >>= \lr -> return (AConcat ll lr) 
+      )
+  <|> ( lbrac |>
     elems >>= \el ->
     rbrac |> return (AList el)
   )
   <|> ( lbrac |>
         rbrac |> return (AList (AEmpty))
   )
-  <|> ( baselist >>= \ll ->
-        conc     |>
-        listexpr >>= \lr -> return (AConcat ll lr) 
-      )
   <|> ( identifier >>= \(AIdent i) ->
         assignment |>
         list >>= \l -> return (AAssign i l)
@@ -189,7 +189,7 @@ instance Show AST where
                   AProd op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AAssign  v e -> v ++ " =\n" ++ show' (ident n) e
                   ANum   i     -> i
-                  AIdent i     -> show i
+                  AIdent i     -> i
                   AList l      -> "[\n" ++ show' (ident n) l ++ "]"
                   ASemCol f s  -> show' 0 f ++ "\n;\n" ++ show' 0 s
                   AComma f s   -> ",\n" ++ show' n f ++ "\n" ++ show' n s
