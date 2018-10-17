@@ -39,3 +39,7 @@ main = do
   runParser "a ++ 1"
   runParser "[1 + 2, 3 + 4, [7, 8, 9]] ++ [a]; x = []; [1, 2, 3]"
   runParser "a = [1] ++ b ++ [[2] ++ [c, d, [[e]] ++ [[d]]]]"
+  runParser "-1"
+  runParser "-1-2"
+  runParser "-1--2"
+  runParser "-(-(-1))-(-(-2))"

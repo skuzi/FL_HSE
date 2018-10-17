@@ -7,8 +7,9 @@ import Prelude hiding (lookup, (>>=), map, pred, return, elem, take)
 data AST = ASum T.Operator AST AST
          | AProd T.Operator AST AST
          | AAssign String AST
-         | ANum String
-         | AIdent String
+         | ANum Char String
+         | AIdent Char String
+         | AUnOp Char AST
          | AList AST
          | ASemCol AST AST
          | AComma AST AST
@@ -56,7 +57,7 @@ base = list <|> expression
 
 listexpr :: Parser AST
 listexpr = 
-  ( identifier >>= \(AIdent i) ->
+  ( identifier >>= \(AIdent s i) ->
     assignment |>
     listexpr >>= \le -> return (AAssign i le)
   )
@@ -103,7 +104,7 @@ list =
   <|> ( lbrac |>
         rbrac |> return (AList (AEmpty))
   )
-  <|> ( identifier >>= \(AIdent i) ->
+  <|> ( identifier >>= \(AIdent '\0' i) ->
         assignment |>
         list >>= \l -> return (AAssign i l)
     )
@@ -111,7 +112,7 @@ list =
 
 expression :: Parser AST
 expression =
-  ( identifier >>= \(AIdent i) ->
+  ( identifier >>= \(AIdent '\0' i) ->
     assignment |>
     expression >>= \e -> return (AAssign i e)
   )
@@ -137,14 +138,26 @@ factor =
     expression >>= \e ->
     rparen |> return e -- No need to keep the parentheses
   )
+  <|> ( minus >>= \s ->
+        lparen |>
+        expression >>= \e ->
+        rparen |> return (AUnOp s e)
+      )
   <|> identifier
+  <|> ( minus >>= \s ->
+        identifier >>= \i -> return (AUnOp s i)
+      )
   <|> digit
+  <|> (
+      minus >>= \s ->
+      digit >>= \d -> return (AUnOp s d)
+    )
 
 digit :: Parser AST
-digit      = map (ANum   . T.pnum) (sat T.isNumber num)
+digit      = map (ANum '\0'  .  T.pnum) (sat T.isNumber num)
 
 identifier :: Parser AST
-identifier = map (AIdent . T.word) (sat T.isWord ident)
+identifier = map (AIdent '\0' .  T.word) (sat T.isWord ident)
 
 lparen :: Parser Char
 lparen = char '('
@@ -163,6 +176,9 @@ comma = char ','
 
 semicol :: Parser Char
 semicol = char ';'
+
+minus :: Parser Char
+minus = char '-'
 
 assignment :: Parser Char
 assignment = char '='
@@ -188,12 +204,13 @@ instance Show AST where
                   ASum  op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AProd op l r -> showOp op : "\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
                   AAssign  v e -> v ++ " =\n" ++ show' (ident n) e
-                  ANum   i     -> i
-                  AIdent i     -> i
+                  ANum  s i    -> s : i
+                  AIdent s i   -> s : i
                   AList l      -> "[\n" ++ show' (ident n) l ++ "]"
                   ASemCol f s  -> show' 0 f ++ "\n;\n" ++ show' 0 s
                   AComma f s   -> ",\n" ++ show' n f ++ "\n" ++ show' n s
                   AConcat l r  -> "++\n" ++ show' (ident n) l ++ "\n" ++ show' (ident n) r
+                  AUnOp s i    -> s : show' 0 i
                   AEmpty       -> ""
 
 
