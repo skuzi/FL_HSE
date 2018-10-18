@@ -42,4 +42,5 @@ main = do
   runParser "-1"
   runParser "-1-2"
   runParser "-1--2"
+  runParser "---3---3"
   runParser "-(-(-1))-(-(-2))"

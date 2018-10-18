@@ -152,6 +152,8 @@ factor =
       minus >>= \s ->
       digit >>= \d -> return (AUnOp s d)
     )
+  <|> (minus >>= \s -> 
+       factor >>= \f -> return (AUnOp s f))
 
 digit :: Parser AST
 digit      = map (ANum '\0'  .  T.pnum) (sat T.isNumber num)
